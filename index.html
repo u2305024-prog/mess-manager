@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>মেস ম্যানেজার</title>
 <style>
-:root{--bg:#f3f5f2;--c:#fff;--t:#1c2a25;--p:#0b6b5c;--pt:#fff;--m:#66756f;--b:#d9e1dd;--neg:#b42318;--pos:#067647}
-@media(prefers-color-scheme:dark){:root{--bg:#0e1614;--c:#17231f;--t:#e5eeea;--p:#34d1b6;--pt:#06231d;--m:#8fa19a;--b:#2a3b36;--neg:#ff8a7a;--pos:#5fe0a0}}
+:root{--bg:#f3f5f2;--c:#fff;--t:#1c2a25;--p:#0b6b5c;--pt:#fff;--m:#66756f;--b:#d9e1dd;--neg:#b42318}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1614;--c:#17231f;--t:#e5eeea;--p:#34d1b6;--pt:#06231d;--m:#8fa19a;--b:#2a3b36;--neg:#ff8a7a}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--t);font-family:"Hind Siliguri","Noto Sans Bengali","Kalpurush",sans-serif;font-size:16px;padding:env(safe-area-inset-top) 0 calc(24px + env(safe-area-inset-bottom))}
-header{background:var(--p);color:var(--pt);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+header{background:var(--p);color:var(--pt);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 header h1{margin:0;font-size:20px}
 header input{width:auto;border:0;padding:6px}
+header button{background:rgba(255,255,255,.2);color:var(--pt);padding:7px 12px}
 main{padding:12px;max-width:640px;margin:auto}
 .card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:12px}
 .card h2{margin:0 0 4px;font-size:17px}
@@ -19,20 +20,17 @@ main{padding:12px;max-width:640px;margin:auto}
 .row{display:flex;gap:8px;align-items:center;margin:6px 0}
 .row>*{flex:1;min-width:0}
 input{font:inherit;padding:9px;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);width:100%}
-button{font:inherit;border:0;border-radius:8px;padding:9px 14px;background:var(--p);color:var(--pt);cursor:pointer}
+button{font:inherit;border:0;border-radius:8px;padding:11px 14px;background:var(--p);color:var(--pt);cursor:pointer}
 button.x{background:transparent;color:var(--neg);padding:4px 8px;flex:0}
+button.big{width:100%;font-size:17px;padding:14px}
+button.alt{background:transparent;color:var(--p);border:1px solid var(--p)}
 .item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--b)}
 .item:last-child{border:0}
 .grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;align-items:center;margin:6px 0}
 .grid b{font-size:14px;color:var(--m);font-weight:600}
-.tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:14px;white-space:nowrap}
-th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--b)}
-th:first-child,td:first-child{text-align:left}
-.pos{color:var(--pos);font-weight:700}.neg{color:var(--neg);font-weight:700}
-.big{font-size:21px;font-weight:700}.m{color:var(--m);font-size:14px}
+.m{color:var(--m);font-size:14px}
 .panel{background:#1f2d3d;color:#fff;border-radius:14px;padding:16px;margin-bottom:12px}
-.panel h2{margin:0 0 12px;font-size:18px}
+.panel h2{margin:0 0 2px;font-size:20px}.panel .sub{opacity:.75;font-size:14px;margin-bottom:12px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .stat{background:rgba(255,255,255,.08);border-radius:10px;padding:10px}
 .stat span{display:block;font-size:13px;opacity:.75}.stat b{font-size:20px}
@@ -46,40 +44,43 @@ th:first-child,td:first-child{text-align:left}
 </style>
 </head>
 <body>
-<header><h1>মেস ম্যানেজার</h1><input type="month" id="mon"></header>
+<header><h1>মেস ম্যানেজার</h1><input type="month" id="mon"><button id="ab" onclick="showArc()">আর্কাইভ</button></header>
 <main>
-<div class="card"><h2>১. সদস্য তালিকা</h2>
-  <div class="row"><input id="nm" placeholder="নাম লিখুন"><button style="flex:0" onclick="addMem()">যোগ</button></div>
-  <div id="ml"></div></div>
-<div class="card"><h2>২. মিল ও বাজার</h2>
-  <p class="hint">প্রত্যেকের মাসের মোট মিল এবং মোট বাজার খরচ (বাজারের টাকা জমা হিসেবে ধরা হবে)।</p>
-  <div id="mb"></div></div>
-<div class="card"><h2>৩. ইউটিলিটি খরচ</h2>
-  <p class="hint">বাসা ভাড়া, বিদ্যুৎ, গ্যাস, বুয়া, ময়লা... সব মোট করে সদস্য সংখ্যা দিয়ে ভাগ হবে।</p>
-  <div class="row"><input id="fn" placeholder="খাতের নাম"><input type="number" id="fa" placeholder="টাকা" inputmode="decimal"><button style="flex:0" onclick="addFix()">যোগ</button></div>
-  <div id="fl"></div></div>
-<div id="res"></div>
+<div id="pin">
+  <div class="card"><h2>১. সদস্য তালিকা</h2>
+    <div class="row"><input id="nm" placeholder="নাম লিখুন"><button style="flex:0" onclick="addMem()">যোগ</button></div>
+    <div id="ml"></div></div>
+  <div class="card"><h2>২. মিল ও বাজার</h2>
+    <p class="hint">প্রত্যেকের মাসের মোট মিল এবং মোট বাজার খরচ (বাজারের টাকা জমা হিসেবে ধরা হবে)।</p>
+    <div id="mb"></div></div>
+  <div class="card"><h2>৩. ইউটিলিটি খরচ</h2>
+    <p class="hint">বাসা ভাড়া, বিদ্যুৎ, গ্যাস, বুয়া, ময়লা... সব মোট করে সদস্য সংখ্যা দিয়ে ভাগ হবে।</p>
+    <div class="row"><input id="fn" placeholder="খাতের নাম"><input type="number" id="fa" placeholder="টাকা" inputmode="decimal"><button style="flex:0" onclick="addFix()">যোগ</button></div>
+    <div id="fl"></div></div>
+  <button class="big" onclick="cont()">হিসাব দেখুন (Continue)</button>
+  <div class="row" style="margin-top:12px"><button class="alt" style="color:var(--neg);border-color:var(--neg)" onclick="resetMon()">এই মাসের ডাটা মুছুন</button></div>
+</div>
+<div id="pres" style="display:none"></div>
+<div id="parc" style="display:none"></div>
 </main>
 <script>
 const $=s=>document.querySelector(s);
 const f=n=>(+n||0).toLocaleString('bn-BD',{maximumFractionDigits:2});
 const g=n=>(+n||0).toLocaleString('bn-BD',{minimumFractionDigits:2,maximumFractionDigits:2});
 const rd=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
-let mon=new Date().toISOString().slice(0,7),M=rd('mess_members',[]),D;
+const ml=m=>new Date(m+'-01').toLocaleDateString('bn-BD',{year:'numeric',month:'long'});
+let mon=new Date().toISOString().slice(0,7),M=rd('mess_members',[]),A=rd('mess_archive',{}),D,cur=null,from='in';
 const empty=()=>({v:{},fixed:[]});
 function load(){D=rd('mess2_'+mon,empty())}
 function save(){try{localStorage.setItem('mess2_'+mon,JSON.stringify(D));localStorage.setItem('mess_members',JSON.stringify(M))}catch(e){alert('সেভ করা যায়নি')}}
+function saveA(){try{localStorage.setItem('mess_archive',JSON.stringify(A))}catch(e){alert('আর্কাইভ সেভ করা যায়নি')}}
 const val=(id,k)=>(D.v[id]&&D.v[id][k])||0;
+function go(p){['in','res','arc'].forEach(x=>$('#p'+x).style.display=x==p?'':'none');$('#mon').style.display=p=='in'?'':'none';$('#ab').style.display=p=='arc'?'none':'';window.scrollTo(0,0)}
 
 function calc(){
-  const tm=M.reduce((s,m)=>s+val(m.id,'meal'),0);
-  const bz=M.reduce((s,m)=>s+val(m.id,'bazar'),0);
-  const fx=D.fixed.reduce((s,x)=>s+x.amt,0);
-  const rate=tm?bz/tm:0, share=M.length?fx/M.length:0;
-  const rows=M.map(m=>{
-    const meal=val(m.id,'meal'),bazar=val(m.id,'bazar'),mc=meal*rate,total=mc+share;
-    return{name:m.name,meal,bazar,mc,share,total,net:bazar-total};
-  });
+  const tm=M.reduce((s,m)=>s+val(m.id,'meal'),0),bz=M.reduce((s,m)=>s+val(m.id,'bazar'),0);
+  const fx=D.fixed.reduce((s,x)=>s+x.amt,0),rate=tm?bz/tm:0,share=M.length?fx/M.length:0;
+  const rows=M.map(m=>{const meal=val(m.id,'meal'),bazar=val(m.id,'bazar'),mc=meal*rate,total=mc+share;return{name:m.name,meal,bazar,mc,share,total,net:bazar-total}});
   return{tm,bz,fx,rate,share,rows};
 }
 
@@ -90,42 +91,79 @@ function render(){
     <input type="number" min="0" step="0.5" inputmode="decimal" placeholder="০" value="${val(m.id,'meal')||''}" oninput="setV(${m.id},'meal',this.value)">
     <input type="number" min="0" inputmode="decimal" placeholder="০" value="${val(m.id,'bazar')||''}" oninput="setV(${m.id},'bazar',this.value)"></div>`).join(''):'<p class="m">আগে সদস্য যোগ করুন।</p>';
   $('#fl').innerHTML=D.fixed.map((x,i)=>`<div class="item"><span>${x.name}</span><span>${f(x.amt)} ৳<button class="x" onclick="delFix(${i})">✕</button></span></div>`).join('');
-  renderRes();
 }
-
-function renderRes(){
-  const c=calc();
-  const pay=c.rows.filter(r=>r.net<-0.005).reduce((t,r)=>t-r.net,0);
-  const get=c.rows.filter(r=>r.net>0.005).reduce((t,r)=>t+r.net,0);
-  $('#res').innerHTML=`<div class="panel"><h2>৪. মাসের হিসাব</h2>
-  <div class="stats">
-   <div class="stat"><span>মোট বাজার</span><b>${f(c.bz)} ৳</b></div>
-   <div class="stat"><span>মোট মিল</span><b>${f(c.tm)}</b></div>
-   <div class="stat"><span>মিল রেট</span><b>${g(c.rate)} ৳</b></div>
-   <div class="stat"><span>জনপ্রতি ইউটিলিটি</span><b>${g(c.share)} ৳</b></div></div>
-  <div class="legend"><span><i style="background:#e5484d"></i>দিতে হবে</span><span><i style="background:#2faa6b"></i>ফেরত পাবে</span></div>
-  ${c.rows.map(r=>{const k=r.net>0.005?'get':r.net<-0.005?'pay':'eq';
-   return `<div class="person"><div><span class="tag ${k}">${r.name}</span>
-   <div class="det">মিল ${f(r.meal)} × ${g(c.rate)} = ${g(r.mc)} + ইউটিলিটি ${g(r.share)}<br>মোট খরচ ${g(r.total)} − বাজার ${g(r.bazar)}</div></div>
-   <div class="amt"><b>${g(Math.abs(r.net))} ৳</b><small>${k=='get'?'ফেরত পাবে':k=='pay'?'দিতে হবে':'হিসাব সমান'}</small></div></div>`}).join('')||'<p>সদস্য যোগ করুন।</p>'}
-  <div class="stats" style="margin:14px 0 0"><div class="stat"><span>মোট দিতে হবে</span><b>${g(pay)} ৳</b></div><div class="stat"><span>মোট ফেরত</span><b>${g(get)} ৳</b></div></div></div>
-  <div class="card"><div class="row"><button onclick="copyRep()">টেক্সট কপি (হোয়াটসঅ্যাপ)</button></div>
-  <div class="row"><button style="background:var(--neg);color:#fff" onclick="resetMon()">এই মাসের ডাটা মুছুন</button></div></div>`;
-}
-
 function addMem(){const n=$('#nm').value.trim();if(!n)return;M.push({id:Date.now(),name:n});$('#nm').value='';save();render()}
 function delMem(id){if(confirm('এই সদস্যকে মুছবেন?')){M=M.filter(m=>m.id!=id);save();render()}}
-function setV(id,k,v){(D.v[id]=D.v[id]||{})[k]=+v||0;save();renderRes()}
+function setV(id,k,v){(D.v[id]=D.v[id]||{})[k]=+v||0;save()}
 function addFix(){const a=+$('#fa').value,n=$('#fn').value.trim();if(!a||!n)return;D.fixed.push({name:n,amt:a});$('#fn').value=$('#fa').value='';save();render()}
 function delFix(i){D.fixed.splice(i,1);save();render()}
-function copyRep(){
-  const c=calc();
-  const t=`মেস ম্যানেজার (${mon})\nমোট বাজার: ${f(c.bz)} ৳ | মোট মিল: ${f(c.tm)}\nমিল রেট: ${g(c.rate)} ৳\nজনপ্রতি ইউটিলিটি: ${g(c.share)} ৳\n\n`+c.rows.map(r=>`${r.name}: মিল ${f(r.meal)}, মোট খরচ ${g(r.total)}, বাজার ${g(r.bazar)} → ${r.net>=0?'ফেরত পাবে ':'দিবে '}${g(Math.abs(r.net))} ৳`).join('\n');
-  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>alert('কপি হয়েছে')).catch(()=>prompt('কপি করুন:',t));
-}
 function resetMon(){if(confirm('এই মাসের সব মিল, বাজার ও ইউটিলিটি মুছে যাবে। নিশ্চিত?')){D=empty();save();render()}}
+
+function cont(){const c=calc();if(!M.length||!c.tm){alert('সদস্য যোগ করুন এবং মিল ও বাজার দিন');return}showRes(c,mon,'in',false)}
+const kind=r=>r.net>0.005?'get':r.net<-0.005?'pay':'eq';
+const klabel={get:'ফেরত পাবে',pay:'দিতে হবে',eq:'হিসাব সমান'};
+
+function showRes(c,label,origin,archived){
+  cur={c,label,archived};from=origin;
+  const pay=c.rows.filter(r=>kind(r)=='pay').reduce((t,r)=>t-r.net,0),get=c.rows.filter(r=>kind(r)=='get').reduce((t,r)=>t+r.net,0);
+  $('#pres').innerHTML=`<div class="panel"><h2>${ml(label)} মাসের হিসাব</h2><div class="sub">মেস ম্যানেজার</div>
+  <div class="stats">
+   <div class="stat"><span>মোট বাজার</span><b>${f(c.bz)} ৳</b></div><div class="stat"><span>মোট মিল</span><b>${f(c.tm)}</b></div>
+   <div class="stat"><span>মিল রেট</span><b>${g(c.rate)} ৳</b></div><div class="stat"><span>জনপ্রতি ইউটিলিটি</span><b>${g(c.share)} ৳</b></div></div>
+  <div class="legend"><span><i style="background:#e5484d"></i>দিতে হবে</span><span><i style="background:#2faa6b"></i>ফেরত পাবে</span></div>
+  ${c.rows.map(r=>{const k=kind(r);return `<div class="person"><div><span class="tag ${k}">${r.name}</span>
+   <div class="det">মিল ${f(r.meal)} × ${g(c.rate)} = ${g(r.mc)} + ইউটিলিটি ${g(r.share)}<br>মোট খরচ ${g(r.total)} − বাজার ${g(r.bazar)}</div></div>
+   <div class="amt"><b>${g(Math.abs(r.net))} ৳</b><small>${klabel[k]}</small></div></div>`}).join('')}
+  <div class="stats" style="margin:14px 0 0"><div class="stat"><span>মোট দিতে হবে</span><b>${g(pay)} ৳</b></div><div class="stat"><span>মোট ফেরত</span><b>${g(get)} ৳</b></div></div></div>
+  <div class="row"><button onclick="dl()">ছবি ডাউনলোড</button><button onclick="share()">শেয়ার</button></div>
+  ${archived?'':`<div class="row"><button class="alt" onclick="toArc()">আর্কাইভে সেভ করুন</button></div>`}
+  <div class="row"><button class="alt" onclick="${origin=='arc'?'showArc()':'back()'}">← ফিরে যান</button></div>`;
+  go('res');
+}
+function back(){go('in')}
+function toArc(){A[cur.label]=Object.assign({},cur.c,{saved:Date.now()});saveA();alert(ml(cur.label)+' এর হিসাব আর্কাইভে সেভ হয়েছে')}
+
+function showArc(){
+  const ks=Object.keys(A).sort().reverse();
+  $('#parc').innerHTML=`<div class="card"><h2>আর্কাইভ</h2><p class="hint">আগের মাসগুলোর সেভ করা হিসাব।</p>
+  ${ks.map(k=>{const c=A[k];return `<div class="item"><div><b>${ml(k)}</b><div class="m">বাজার ${f(c.bz)} ৳ · রেট ${g(c.rate)} ৳ · ${f(c.rows.length)} জন</div></div>
+  <span style="display:flex;gap:4px"><button style="padding:7px 12px" onclick="openArc('${k}')">দেখুন</button><button class="x" onclick="delArc('${k}')">✕</button></span></div>`}).join('')||'<p class="m">এখনো কোনো হিসাব সেভ করা হয়নি। হিসাবের পেজে "আর্কাইভে সেভ করুন" চাপুন।</p>'}</div>
+  <div class="row"><button class="alt" onclick="go('in')">← ফিরে যান</button></div>`;
+  go('arc');
+}
+function openArc(k){showRes(A[k],k,'arc',true)}
+function delArc(k){if(confirm(ml(k)+' এর আর্কাইভ মুছবেন?')){delete A[k];saveA();showArc()}}
+
+function rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();x.fill()}
+function draw(c,label){
+  const W=800,H=330+c.rows.length*120+90,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const x=cv.getContext('2d'),FF='"Hind Siliguri","Noto Sans Bengali",sans-serif',pay=c.rows.filter(r=>kind(r)=='pay').reduce((t,r)=>t-r.net,0),get=c.rows.filter(r=>kind(r)=='get').reduce((t,r)=>t+r.net,0);
+  x.fillStyle='#1f2d3d';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='left';
+  x.font='bold 40px '+FF;x.fillText('মেস ম্যানেজার',40,70);
+  x.globalAlpha=.75;x.font='26px '+FF;x.fillText(ml(label)+' মাসের হিসাব',40,110);x.globalAlpha=1;
+  [['মোট বাজার',f(c.bz)+' ৳'],['মোট মিল',f(c.tm)],['মিল রেট',g(c.rate)+' ৳'],['জনপ্রতি ইউটিলিটি',g(c.share)+' ৳']].forEach((s,i)=>{
+    const px=40+(i%2)*370,py=140+Math.floor(i/2)*80;x.fillStyle='rgba(255,255,255,.08)';rr(x,px,py,350,68,12);
+    x.fillStyle='#fff';x.globalAlpha=.75;x.font='18px '+FF;x.fillText(s[0],px+14,py+25);x.globalAlpha=1;x.font='bold 28px '+FF;x.fillText(s[1],px+14,py+57)});
+  const col={pay:'#e5484d',get:'#2faa6b',eq:'#6b7785'};
+  c.rows.forEach((r,i)=>{
+    const y=320+i*120,k=kind(r);x.fillStyle='rgba(255,255,255,.07)';rr(x,40,y,720,100,16);
+    x.font='bold 28px '+FF;const w=x.measureText(r.name).width+40;x.fillStyle=col[k];rr(x,60,y+14,w,46,23);
+    x.fillStyle='#fff';x.fillText(r.name,80,y+47);
+    x.globalAlpha=.7;x.font='18px '+FF;x.fillText('মিল '+f(r.meal)+' | মোট খরচ '+g(r.total)+' | বাজার '+g(r.bazar),60,y+88);x.globalAlpha=1;
+    x.textAlign='right';x.font='bold 32px '+FF;x.fillText(g(Math.abs(r.net))+' ৳',740,y+46);
+    x.globalAlpha=.8;x.font='20px '+FF;x.fillText(klabel[k],740,y+78);x.globalAlpha=1;x.textAlign='left'});
+  x.font='22px '+FF;x.fillText('মোট দিতে হবে '+g(pay)+' ৳   |   মোট ফেরত '+g(get)+' ৳',40,H-34);
+  return cv;
+}
+function blob(cb){draw(cur.c,cur.label).toBlob(cb,'image/png')}
+function dl(){blob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mess-manager-'+cur.label+'.png';document.body.appendChild(a);a.click();a.remove()})}
+function share(){blob(b=>{
+  const file=new File([b],'mess-manager-'+cur.label+'.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file],title:'মেস ম্যানেজার '+ml(cur.label)}).catch(()=>{});
+  else{alert('এই ডিভাইসে সরাসরি শেয়ার সাপোর্ট নেই। ছবি ডাউনলোড হচ্ছে, সেটা শেয়ার করুন।');dl()}})}
+
 $('#mon').onchange=e=>{mon=e.target.value||mon;load();render()};
-load();render();
+load();render();go('in');
 </script>
 </body>
 </html>
