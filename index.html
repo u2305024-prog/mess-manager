@@ -71,6 +71,10 @@ th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--b)}th:first
 .pos{color:#067647;font-weight:700}.neg{color:var(--neg);font-weight:700}
 @media(prefers-color-scheme:dark){.pos{color:#5fe0a0}}
 header button#lb{padding:7px 10px}
+.mt{width:auto;font-size:13px}.mt th,.mt td{padding:6px 5px;text-align:center;min-width:34px}
+.mt .sc{position:sticky;left:0;background:var(--c);text-align:left;min-width:84px;max-width:110px;overflow:hidden;text-overflow:ellipsis;z-index:1;border-right:1px solid var(--b)}
+.mt td.mc{cursor:pointer}.mt td.ov{background:rgba(245,166,35,.4)}
+.bzr{border:1px solid var(--b);border-radius:10px;padding:10px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -136,10 +140,11 @@ const ml=m=>new Date(m+'-01T00:00:00').toLocaleDateString(LOC(),{year:'numeric',
 const dfmt=d=>new Date(d+'T00:00:00').toLocaleDateString(LOC(),{day:'numeric',month:'long',year:'numeric'});
 const T0={white:{n:['সাদা','White'],bg:'#ffffff',tx:'#1c2a25',tile:'#f1f5f3',row:'#f6f8f7',bd:'#d9e1dd'},blue:{n:['হালকা নীল','Light blue'],bg:'#e8f0fb',tx:'#1b2a41',tile:'#d6e4f7',row:'#f5f9fe',bd:'#c3d6ef'},mint:{n:['হালকা সবুজ','Light green'],bg:'#e5f4ec',tx:'#173328',tile:'#d0eadc',row:'#f4fbf7',bd:'#bfe0cd'},dark:{n:['ডার্ক','Dark'],bg:'#1f2d3d',tx:'#ffffff',tile:'rgba(255,255,255,.08)',row:'rgba(255,255,255,.06)',bd:'#1f2d3d'}};
 let TH=localStorage.getItem('mess_theme');if(!T0[TH])TH='white';
-let mon=today().slice(0,7),M=rd('mess_members',[]),A=rd('mess_archive',{}),IA=rd('mess_ind_arc',{}),BZ=rd('mess_bz',[]),D,I,MC,pg='home',cur=null,bf='',bt='';
-const getMC=ym=>rd('mess_mc_'+ym,{def:+localStorage.getItem('mess_def')||2,r:[]});
+let mon=today().slice(0,7),M=rd('mess_members',[]),A=rd('mess_archive',{}),IA=rd('mess_ind_arc',{}),BZ=rd('mess_bz2',[]),D,I,MC,pg='home',cur=null,bf='',bt='';
+const mig=(c,ym)=>{if(!c.r||!c.r.length)return c;c.o=c.o||{};c.r.forEach(r=>{(r.mid=='all'?M.map(m=>m.id):[r.mid]).forEach(id=>{const o=c.o[id]=c.o[id]||{};for(let d=new Date(r.f+'T00:00:00'),n=0;ds(d)<=r.t&&n<40;d.setDate(d.getDate()+1),n++)o[ds(d)]=r.m})});c.r=[];wr('mess_mc_'+ym,c);return c};
+const getMC=ym=>mig(rd('mess_mc_'+ym,{def:+localStorage.getItem('mess_def')||2,r:[],o:{}}),ym);
 function load(){D=rd('mess2_'+mon,{v:{},fixed:[]});I=rd('mess_ind_'+mon,{items:[],due:0,other:0});MC=getMC(mon)}
-const sD=()=>{wr('mess2_'+mon,D);wr('mess_members',M)},sI=()=>wr('mess_ind_'+mon,I),sMC=()=>wr('mess_mc_'+mon,MC),sBZ=()=>wr('mess_bz',BZ);
+const sD=()=>{wr('mess2_'+mon,D);wr('mess_members',M)},sI=()=>wr('mess_ind_'+mon,I),sMC=()=>wr('mess_mc_'+mon,MC),sBZ=()=>wr('mess_bz2',BZ);
 const val=(id,k)=>(D.v[id]&&D.v[id][k])||0,nm=id=>(M.find(m=>m.id==id)||{name:'?'}).name;
 const RENDER={};
 const uid=arr=>arr.reduce((s,x)=>Math.max(s,x.id),Date.now())+1;
@@ -148,7 +153,7 @@ const uid=arr=>arr.reduce((s,x)=>Math.max(s,x.id),Date.now())+1;
 function go(p,push=true){
   if(p=='res'&&!cur)p='home';
   pg=p;['home','in','res','arc','ind','iarc','mc','bz'].forEach(x=>$('#p'+x).style.display=x==p?'':'none');
-  $('#mon').style.display=(p=='in'||p=='ind'||p=='mc')?'':'none';$('#ab').style.display=(p=='in'||p=='res')?'':'none';$('#hb').style.display=p=='home'?'none':'';
+  $('#mon').style.display=(p=='in'||p=='ind')?'':'none';$('#ab').style.display=(p=='in'||p=='res')?'':'none';$('#hb').style.display=p=='home'?'none':'';
   $('#mon').value=mon;hdr();RENDER[p]();if(push)history.pushState({p},'');window.scrollTo(0,0);
 }
 addEventListener('popstate',e=>go(e.state&&e.state.p||'home',false));
@@ -158,19 +163,19 @@ const back='<div class="row"><button class="alt" onclick="history.back()">'+'←
 const bkb=()=>`<div class="row"><button class="alt" onclick="history.back()">← ${L('ফিরে যান','Back')}</button></div>`;
 
 /* meal count helpers */
-const mealsOn=(mid,d,c)=>{let m=c.def;for(const r of c.r)if((r.mid=='all'||r.mid==mid)&&d>=r.f&&d<=r.t)m=r.m;return m};
-function memberMeals(mid,from,to){
-  if(!from||!to||from>to)return 0;let tot=0,n=0;const cache={};
-  for(let d=new Date(from+'T00:00:00');ds(d)<=to&&n<800;d.setDate(d.getDate()+1),n++){const s=ds(d),ym=s.slice(0,7);tot+=mealsOn(mid,s,cache[ym]||(cache[ym]=ym==mon?MC:getMC(ym)))}
-  return tot;
-}
+const mealsOn=(mid,d,c)=>{let m=c.def;const o=c.o&&c.o[mid]&&c.o[mid][d];return o!=null?o:m};
+const cfgOf=(ym,c)=>c[ym]||(c[ym]=ym==mon?MC:getMC(ym));
+function eachDay(a,b,fn){if(!a||!b||a>b)return;for(let d=new Date(a+'T00:00:00'),n=0;ds(d)<=b&&n<800;d.setDate(d.getDate()+1),n++)fn(ds(d))}
+function memberMeals(mid,a,b){let t=0;const c={};eachDay(a,b,s=>{t+=mealsOn(mid,s,cfgOf(s.slice(0,7),c))});return t}
+const mealsDay=(s,c)=>M.reduce((t,m)=>t+mealsOn(m.id,s,cfgOf(s.slice(0,7),c)),0);
+const sd=d=>new Date(d+'T00:00:00').toLocaleDateString(LOC(),{day:'numeric',month:'short'});
 const mRange=()=>[mon+'-01',mon+'-'+pad(dim(mon))];
 
 /* ===== HOME ===== */
-RENDER.home=()=>{$('#hbtns').innerHTML=[['in',L('মেসের হিসাব','Mess Account'),L('সবার মিল, বাজার ও ইউটিলিটি মিলিয়ে কে কত দিবে/ফেরত পাবে।','Who pays / gets back, from meals, bazar and utilities.')],
- ['ind',L('ব্যক্তিগত হিসাব','Personal Account'),L('নিজের বাজারের তালিকা, মাসের মোট খরচ ও আর্কাইভ।','Your own bazar list, monthly total and archive.')],
- ['mc',L('মিল গণনা','Meal Count'),L('ডিফল্ট মিল সেট করুন, ছুটির দিন বাদ দিন, মাসের মোট মিল দেখুন।','Set default meals, mark off days, see total meals of the month.')],
- ['bz',L('তারিখ অনুযায়ী বাজার','Bazar by Date'),L('কে কত বাজার করেছে (তারিখ থেকে–পর্যন্ত) ও মিল রেট।','Who bought how much (date range) and the meal rate.')]]
+RENDER.home=()=>{$('#hbtns').innerHTML=[['mc',L('১. মিল গণনা','1. Meal Count'),L('ডিফল্ট মিল সেট করুন, তারিখ ধরে মিল বদলান, মাসের মোট মিল দেখুন।','Set default meals, edit any day, see the monthly meal chart.')],
+ ['bz',L('২. তারিখ অনুযায়ী বাজার','2. Bazar by Date'),L('কে কোন তারিখে কত বাজার করেছে, সেই সময়ের মিল ও মিল রেট।','Who bought bazar on which dates, meals in that period and meal rate.')],
+ ['in',L('৩. মেসের হিসাব','3. Mess Account'),L('সবার মিল, বাজার ও ইউটিলিটি মিলিয়ে কে কত দিবে/ফেরত পাবে।','Who pays / gets back, from meals, bazar and utilities.')],
+ ['ind',L('৪. ব্যক্তিগত হিসাব','4. Personal Account'),L('নিজের বাজারের তালিকা, মাসের মোট খরচ ও আর্কাইভ।','Your own bazar list, monthly total and archive.')]]
  .map(x=>`<button class="home" onclick="go('${x[0]}')"><h2>${x[1]}</h2><p>${x[2]}</p></button>`).join('')};
 
 /* ===== MESS ACCOUNT ===== */
@@ -190,9 +195,9 @@ RENDER.in=()=>{
   <button class="big" onclick="cont()">${L('হিসাব দেখুন (Continue)','View result (Continue)')}</button>
   <div class="row" style="margin-top:12px"><button class="alt" style="color:var(--neg);border-color:var(--neg)" onclick="resetMon()">${L('এই মাসের ডাটা মুছুন','Clear this month')}</button></div>`;
 };
-function addMem(){const n=$('#nm').value.trim();if(!n)return;M.push({id:uid(M),name:n});sD();RENDER.in()}
+function addMem(){const el=$('#p'+pg+' #nm'),n=el.value.trim();if(!n)return;M.push({id:uid(M),name:n});sD();RENDER[pg]()}
 function renMem(id){const m=M.find(x=>x.id==id),n=prompt(L('নতুন নাম','New name'),m.name);if(n&&n.trim()){m.name=n.trim();sD();RENDER[pg]()}}
-function delMem(id){if(confirm(L('এই সদস্যকে মুছবেন?','Delete this member?'))){M=M.filter(m=>m.id!=id);sD();RENDER.in()}}
+function delMem(id){if(confirm(L('এই সদস্যকে মুছবেন?','Delete this member?'))){M=M.filter(m=>m.id!=id);BZ=BZ.filter(e=>e.mid!=id);sD();sBZ();RENDER[pg]()}}
 function setV(id,k,v){(D.v[id]=D.v[id]||{})[k]=P(v);sD()}
 function addFix(){const a=P($('#fa').value),n=$('#fn').value.trim();if(!a||!n)return;D.fixed.push({name:n,amt:a});sD();RENDER.in()}
 function editFix(i){const x=D.fixed[i],n=prompt(L('খাতের নাম','Item name'),x.name);if(n===null)return;const a=prompt(L('টাকা','Amount'),x.amt);if(a===null)return;if(n.trim())x.name=n.trim();if(P(a))x.amt=P(a);sD();RENDER.in()}
@@ -291,45 +296,80 @@ function dlList(){if(!noItems())fileDl(drawList(),lname())}
 function shareList(){if(!noItems())fileShare(drawList(),lname(),L('বাজারের তালিকা','Bazar list'))}
 
 /* ===== MEAL COUNT ===== */
+const PN=v=>{const n=parseFloat(ND(v));return isFinite(n)&&n>=0?n:0};
+function setMon(v){if(!v)return;mon=v;load();RENDER[pg]()}
+function setDef(v){MC.def=PN(v);try{localStorage.setItem('mess_def',MC.def)}catch(e){}sMC();RENDER.mc()}
+function editCell(id,d){const r=prompt(nm(id)+' · '+dfmt(d)+'\n'+L('এই দিনের মিল লিখুন (খালি রাখলে ডিফল্ট হবে)','Meals for this day (leave empty for default)'),mealsOn(id,d,MC));
+  if(r===null)return;MC.o=MC.o||{};const o=MC.o[id]=MC.o[id]||{};
+  if(!r.trim())delete o[d];else{const n=parseFloat(ND(r));if(!isFinite(n)||n<0)return;if(n==MC.def)delete o[d];else o[d]=n}
+  sMC();RENDER.mc()}
 RENDER.mc=()=>{
-  const n=dim(mon),[a,b]=mRange(),tot=M.map(m=>memberMeals(m.id,a,b)),gt=tot.reduce((s,x)=>s+x,0);
-  $('#pmc').innerHTML=`<div class="card"><h2>${L('মিল গণনা','Meal Count')}</h2><p class="hint">${ml(mon)} · ${f(n)} ${L('দিন','days')}</p>
-  <p class="hint">${L('প্রতিদিন প্রত্যেকে কয় বেলা খাবে (ডিফল্ট):','Default meals per person per day:')}</p>
-  <div class="chips">${[1,2,3].map(k=>`<button class="chip ${MC.def==k?'on':''}" onclick="setDef(${k})">${f(k)} ${L('বেলা','meal(s)')}</button>`).join('')}</div></div>
-  <div class="card"><h2>${L('মাসের মোট মিল','Total meals this month')}</h2>
-  ${M.length?`<div class="tw"><table><tr><th>${L('নাম','Name')}</th><th>${L('মোট মিল','Total')}</th></tr>${M.map((m,i)=>`<tr><td>${esc(m.name)}</td><td>${f(tot[i])}</td></tr>`).join('')}<tr><td><b>${L('সর্বমোট','Grand total')}</b></td><td><b>${f(gt)}</b></td></tr></table></div><div class="row"><button class="alt" onclick="fromMc()">${L('মেসের হিসাবে নিন','Use in Mess Account')}</button></div>`:`<p class="m">${L('আগে মেসের হিসাব থেকে সদস্য যোগ করুন।','Add members in Mess Account first.')}</p>`}</div>
-  <div class="card"><h2>${L('মিল বন্ধ / কম (ছুটি)','Meals off / reduced')}</h2><p class="hint">${L('কেউ কোনো দিন বা কয়েকদিন না খেলে, বা কম খেলে, তারিখ দিয়ে এখানে বাদ দিন।','If someone skips or eats fewer meals on a day or several days, set it here by date.')}</p>
-  <div class="row"><select id="mcm"><option value="all">${L('সবাই','Everyone')}</option>${M.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select><select id="mcn">${[0,1,2,3].map(k=>`<option value="${k}">${f(k)} ${L('বেলা খাবে','meal(s)/day')}</option>`).join('')}</select></div>
-  <p class="hint" style="margin:6px 0 0">${L('শুরুর তারিখ – শেষ তারিখ','From date – To date')}</p>
-  <div class="row"><input type="date" id="mcf" min="${a}" max="${b}" value="${a}"><input type="date" id="mct" min="${a}" max="${b}" value="${a}"><button class="ad" onclick="addOff()">${L('যোগ','Add')}</button></div>
-  ${MC.r.map((r,i)=>`<div class="item"><span>${r.mid=='all'?L('সবাই','Everyone'):esc(nm(r.mid))}: ${dfmt(r.f)}${r.f!=r.t?' → '+dfmt(r.t):''} · ${f(r.m)} ${L('বেলা/দিন','meal(s)/day')}</span><button class="x" onclick="delOff(${i})">✕</button></div>`).join('')}</div>`;
+  const n=dim(mon),days=[...Array(n)].map((_,i)=>mon+'-'+pad(i+1)),tot=M.map(m=>days.reduce((s,d)=>s+mealsOn(m.id,d,MC),0)),dt=days.map(d=>M.reduce((s,m)=>s+mealsOn(m.id,d,MC),0)),gt=tot.reduce((a,b)=>a+b,0);
+  $('#pmc').innerHTML=`<div class="card"><h2>${L('মিল গণনা','Meal Count')}</h2>
+  <div class="row"><div><div class="hint">${L('মাস','Month')}</div><input type="month" value="${mon}" onchange="setMon(this.value)"></div><div><div class="hint">${L('প্রতিদিন ডিফল্ট মিল','Default meals per day')}</div><input inputmode="decimal" value="${MC.def}" onchange="setDef(this.value)"></div></div>
+  <div class="chips">${[1,2,3].map(k=>`<button class="chip ${MC.def==k?'on':''}" onclick="setDef(${k})">${f(k)}</button>`).join('')}</div></div>
+  <div class="card"><h2>${L('সদস্য','Members')}</h2><div class="row"><input id="nm" placeholder="${L('নাম লিখুন','Enter name')}"><button class="ad" onclick="addMem()">${L('যোগ','Add')}</button></div>
+  ${M.map(m=>`<div class="item"><span>${esc(m.name)}</span><span><button class="x" onclick="renMem(${m.id})">✎</button><button class="x" onclick="delMem(${m.id})">✕</button></span></div>`).join('')||`<p class="m">${L('এখনো কোনো সদস্য নেই।','No members yet.')}</p>`}</div>
+  <div class="card"><h2>${L('মিলের চার্ট','Meal chart')} · ${ml(mon)}</h2><p class="hint">${L('সবার ডিফল্ট মিল বসানো আছে। কোনো দিন বদলাতে ঘরে ট্যাপ করুন (0 দিলে ওই দিন মিল বন্ধ)। হলুদ ঘর = বদলানো।','Everyone has the default meals. Tap a cell to change that day (0 = no meal). Yellow = changed.')}</p>
+  ${M.length?`<div class="tw"><table class="mt"><tr><th class="sc">${L('নাম','Name')}</th>${days.map((d,i)=>`<th>${f(i+1)}</th>`).join('')}<th>${L('মোট','Total')}</th></tr>
+  ${M.map((m,i)=>`<tr><td class="sc">${esc(m.name)}</td>${days.map(d=>{const ov=MC.o&&MC.o[m.id]&&MC.o[m.id][d]!=null;return `<td class="mc${ov?' ov':''}" onclick="editCell(${m.id},'${d}')">${f(mealsOn(m.id,d,MC))}</td>`}).join('')}<td><b>${f(tot[i])}</b></td></tr>`).join('')}
+  <tr><td class="sc"><b>${L('দৈনিক মোট','Daily total')}</b></td>${dt.map(v=>`<td><b>${f(v)}</b></td>`).join('')}<td><b>${f(gt)}</b></td></tr></table></div>
+  <div class="sum"><div><span>${L('মাসের মোট মিল','Total meals this month')}</span><b>${f(gt)}</b></div><div><span>${L('দিন','Days')}</span><b>${f(n)}</b></div></div>
+  <div class="row"><button onclick="fileDl(drawMc(),'meal-chart-'+mon+'.png')">${L('ছবি ডাউনলোড','Download image')}</button><button onclick="fileShare(drawMc(),'meal-chart-'+mon+'.png',L('মিল গণনা','Meal Count'))">${L('শেয়ার','Share')}</button></div>`:`<p class="m">${L('আগে সদস্য যোগ করুন।','Add members first.')}</p>`}</div>${bkb()}`;
 };
-function setDef(k){MC.def=k;try{localStorage.setItem('mess_def',k)}catch(e){}sMC();RENDER.mc()}
-function addOff(){const[a,b]=mRange(),f_=$('#mcf').value,t_=$('#mct').value,w=$('#mcm').value;
-  if(!f_||!t_||f_>t_||f_<a||t_>b){alert(L('তারিখ ঠিক নেই (এই মাসের ভেতরে হতে হবে)','Invalid dates (must be inside this month)'));return}
-  MC.r.push({mid:w=='all'?'all':+w,f:f_,t:t_,m:+$('#mcn').value});sMC();RENDER.mc()}
-function delOff(i){MC.r.splice(i,1);sMC();RENDER.mc()}
+function drawMc(){
+  const t=T0[TH],n=dim(mon),days=[...Array(n)].map((_,i)=>mon+'-'+pad(i+1)),nw=190,cw=50,tw=100,rh=52,top=150,W=nw+cw*n+tw+80,H=top+rh*(M.length+2)+60,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const X=i=>40+nw+cw*i,bg=(r,c)=>{x.fillStyle=c;x.fillRect(40,top+rh*r,W-80,rh)};
+  x.fillStyle=t.bg;x.fillRect(0,0,W,H);x.fillStyle=t.tx;x.textAlign='left';x.font='bold 38px '+FF;x.fillText(L('মিল গণনা','Meal Count')+' — '+ml(mon),40,62);
+  x.globalAlpha=.75;x.font='22px '+FF;x.fillText(L('ডিফল্ট ','Default ')+f(MC.def)+L(' বেলা/দিন · হলুদ ঘর = বদলানো',' meal(s)/day · yellow = changed'),40,102);x.globalAlpha=1;
+  bg(0,t.tile);x.fillStyle=t.tx;x.font='bold 22px '+FF;x.fillText(L('নাম','Name'),52,top+34);x.textAlign='center';days.forEach((d,i)=>x.fillText(f(i+1),X(i)+cw/2,top+34));x.fillText(L('মোট','Total'),X(n)+tw/2,top+34);
+  M.forEach((m,r)=>{const y=top+rh*(r+1);if(r%2==0)bg(r+1,t.row);x.textAlign='left';x.font='22px '+FF;x.fillStyle=t.tx;let s=m.name;while(x.measureText(s).width>nw-24&&s.length>1)s=s.slice(0,-1);x.fillText(s,52,y+34);let tt=0;x.textAlign='center';
+    days.forEach((d,i)=>{const v=mealsOn(m.id,d,MC),ov=MC.o&&MC.o[m.id]&&MC.o[m.id][d]!=null;tt+=v;if(ov){x.fillStyle='#f5c15a';x.fillRect(X(i)+2,y+4,cw-4,rh-8)}x.fillStyle=ov?'#3b2a00':t.tx;x.fillText(f(v),X(i)+cw/2,y+34)});
+    x.fillStyle=t.tx;x.font='bold 22px '+FF;x.fillText(f(tt),X(n)+tw/2,y+34)});
+  const yb=top+rh*(M.length+1);bg(M.length+1,t.tile);x.fillStyle=t.tx;x.font='bold 22px '+FF;x.textAlign='left';x.fillText(L('দৈনিক মোট','Daily total'),52,yb+34);x.textAlign='center';let gt=0;
+  days.forEach((d,i)=>{const v=M.reduce((s,m)=>s+mealsOn(m.id,d,MC),0);gt+=v;x.fillText(f(v),X(i)+cw/2,yb+34)});x.fillText(f(gt),X(n)+tw/2,yb+34);return cv;
+}
 
 /* ===== BAZAR BY DATE ===== */
+function bzCalc(){
+  const ents=BZ.filter(e=>M.some(m=>m.id==e.mid)),c={};
+  const rows=ents.map(e=>{let ms=0;eachDay(e.f,e.t,s=>ms+=mealsDay(s,c));return{n:nm(e.mid),f:e.f,t:e.t,amt:e.amt,ms,rate:ms?e.amt/ms:0}});
+  const set=new Set();ents.forEach(e=>eachDay(e.f,e.t,s=>set.add(s)));let tms=0;set.forEach(s=>tms+=mealsDay(s,c));
+  const tb=rows.reduce((s,r)=>s+r.amt,0);return{rows,tb,tms,rate:tms?tb/tms:0};
+}
 RENDER.bz=()=>{
-  if(!bf){[bf,bt]=mRange()}
-  const ents=BZ.filter(e=>e.d>=bf&&e.d<=bt&&M.some(m=>m.id==e.mid)).sort((x,y)=>y.d.localeCompare(x.d)),tm=M.reduce((s,m)=>s+memberMeals(m.id,bf,bt),0),tb=ents.reduce((s,e)=>s+e.amt,0),rate=tm?tb/tm:0;
-  const rows=M.map(m=>{const b=ents.filter(e=>e.mid==m.id).reduce((s,e)=>s+e.amt,0),ms=memberMeals(m.id,bf,bt);return{n:m.name,b,part:tm?b/tm:0,ms,cost:ms*rate,net:b-ms*rate}});
-  $('#pbz').innerHTML=`<div class="card"><h2>${L('বাজার যোগ করুন','Add bazar')}</h2>
-  <div class="row"><input type="date" id="bzd" value="${today()}"><select id="bzm">${M.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select></div>
-  <div class="row"><input id="bza" inputmode="decimal" placeholder="${L('টাকা','Amount')}"><input id="bzn" placeholder="${L('কী কিনেছেন (ঐচ্ছিক)','Note (optional)')}"><button class="ad" onclick="addBz()">${L('যোগ','Add')}</button></div></div>
-  <div class="card"><h2>${L('তারিখ অনুযায়ী হিসাব','Report by date range')}</h2><p class="hint">${L('শুরুর তারিখ – শেষ তারিখ','From date – To date')}</p>
-  <div class="row"><input type="date" id="bf" value="${bf}" onchange="setRg()"><input type="date" id="bt2" value="${bt}" onchange="setRg()"></div>
-  <div class="sum"><div><span>${L('মোট বাজার','Total bazar')}</span><b>${f(tb)} ৳</b></div><div><span>${L('মোট মিল (মিল গণনা থেকে)','Total meals (from Meal Count)')}</span><b>${f(tm)}</b></div><div><span>${L('মিল রেট','Meal rate')}</span><b>${g(rate)} ৳</b></div><div><span>${L('বাজারের সংখ্যা','Entries')}</span><b>${f(ents.length)}</b></div></div>
-  ${M.length?`<div class="tw"><table><tr><th>${L('নাম','Name')}</th><th>${L('বাজার','Bazar')}</th><th>${L('রেটে অংশ','Rate share')}</th><th>${L('মিল','Meals')}</th><th>${L('মিল খরচ','Meal cost')}</th><th>${L('ফলাফল','Result')}</th></tr>
-  ${rows.map(r=>`<tr><td>${esc(r.n)}</td><td>${g(r.b)}</td><td>${g(r.part)}</td><td>${f(r.ms)}</td><td>${g(r.cost)}</td><td class="${r.net>=0?'pos':'neg'}">${r.net>=0?'+':'−'}${g(Math.abs(r.net))}</td></tr>`).join('')}</table></div>
-  <p class="hint" style="margin-top:8px">${L('রেটে অংশ = তার বাজার ÷ মোট মিল। সবার অংশ যোগ করলে মিল রেট হয়। ফলাফল = বাজার − মিল খরচ (+ ফেরত পাবে, − দিতে হবে)।','Rate share = their bazar ÷ total meals. Shares add up to the meal rate. Result = bazar − meal cost (+ gets back, − owes).')}</p>`:`<p class="m">${L('আগে মেসের হিসাব থেকে সদস্য যোগ করুন।','Add members in Mess Account first.')}</p>`}</div>
-  <div class="card"><h2>${L('বাজারের তালিকা','Bazar entries')}</h2>${ents.map(e=>`<div class="item"><span>${dfmt(e.d)} · ${esc(nm(e.mid))}${e.note?' · '+esc(e.note):''}</span><span>${f(e.amt)} ৳<button class="x" onclick="editBz(${e.id})">✎</button><button class="x" onclick="delBz(${e.id})">✕</button></span></div>`).join('')||`<p class="m">${L('এই সময়ে কোনো বাজার নেই।','No bazar in this period.')}</p>`}</div>${bkb()}`;
+  const ents=BZ.filter(e=>M.some(m=>m.id==e.mid));
+  $('#pbz').innerHTML=`<div class="card"><h2>${L('তারিখ অনুযায়ী বাজার','Bazar by Date')}</h2><p class="hint">${L('সদস্যদের নাম মিল গণনা থেকে এসেছে। নাম বেছে "যোগ" চাপুন, তারপর তারিখ ও মোট বাজার খরচ দিন।','Names come from Meal Count. Pick a name, press Add, then set the dates and total bazar cost.')}</p>
+  ${M.length?`<div class="row"><select id="bzm">${M.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select><button class="ad" onclick="addBz()">${L('যোগ','Add')}</button></div>`:`<p class="m">${L('আগে মিল গণনায় সদস্য যোগ করুন।','Add members in Meal Count first.')}</p>`}
+  ${ents.map(e=>`<div class="bzr"><div class="item" style="border:0;padding:0"><b>${esc(nm(e.mid))}</b><button class="x" onclick="delBz(${e.id})">✕</button></div>
+  <div class="hint" style="margin:6px 0 0">${L('শুরুর তারিখ – শেষ তারিখ','From date – To date')}</div>
+  <div class="row"><input type="date" value="${e.f}" onchange="setBzD(${e.id},'f',this.value)"><input type="date" value="${e.t}" onchange="setBzD(${e.id},'t',this.value)"></div>
+  <div class="row"><input inputmode="decimal" placeholder="${L('মোট বাজার খরচ (৳)','Total bazar cost (৳)')}" value="${e.amt||''}" oninput="setBzA(${e.id},this.value)"></div></div>`).join('')}</div>
+  <div id="bzres"></div>${bkb()}`;rBzRes();
 };
-function setRg(){const a=$('#bf').value,b=$('#bt2').value;if(!a||!b||a>b){alert(L('তারিখ ঠিক নেই','Invalid dates'));return}bf=a;bt=b;RENDER.bz()}
-function addBz(){const d=$('#bzd').value,m=$('#bzm').value,a=P($('#bza').value);if(!d||!m||!a)return;BZ.push({id:uid(BZ),d,mid:+m,amt:a,note:$('#bzn').value.trim()});sBZ();RENDER.bz()}
-function editBz(id){const e=BZ.find(x=>x.id==id),a=prompt(L('টাকা','Amount'),e.amt);if(a===null)return;const n=prompt(L('কী কিনেছেন','Note'),e.note||'');if(P(a))e.amt=P(a);if(n!==null)e.note=n.trim();sBZ();RENDER.bz()}
-function delBz(id){if(confirm(L('এই বাজার মুছবেন?','Delete this entry?'))){BZ=BZ.filter(x=>x.id!=id);sBZ();RENDER.bz()}}
+function rBzRes(){
+  const c=bzCalc();
+  $('#bzres').innerHTML=c.rows.length?`<div class="card"><h2>${L('ফলাফল','Result')}</h2><div class="tw"><table><tr><th>${L('নাম','Name')}</th><th>${L('তারিখ','Period')}</th><th>${L('বাজার','Bazar')}</th><th>${L('মিল','Meals')}</th><th>${L('মিল রেট','Meal rate')}</th></tr>
+  ${c.rows.map(r=>`<tr><td>${esc(r.n)}</td><td>${sd(r.f)} – ${sd(r.t)}</td><td>${g(r.amt)}</td><td>${f(r.ms)}</td><td><b>${g(r.rate)}</b></td></tr>`).join('')}
+  <tr><td><b>${L('মোট','Total')}</b></td><td></td><td><b>${g(c.tb)}</b></td><td><b>${f(c.tms)}</b></td><td><b>${g(c.rate)}</b></td></tr></table></div>
+  <p class="hint" style="margin-top:8px">${L('মিল = ওই তারিখগুলোর মধ্যে সবার মোট মিল (মিল গণনা থেকে)। মিল রেট = বাজার ÷ মিল।','Meals = everyone\'s total meals in those dates (from Meal Count). Meal rate = bazar ÷ meals.')}</p>
+  <div class="row"><button onclick="fileDl(drawBz(),'bazar-by-date.png')">${L('ছবি ডাউনলোড','Download image')}</button><button onclick="fileShare(drawBz(),'bazar-by-date.png',L('তারিখ অনুযায়ী বাজার','Bazar by Date'))">${L('শেয়ার','Share')}</button></div></div>`:'';
+}
+function addBz(){BZ.push({id:uid(BZ),mid:+$('#bzm').value,f:mon+'-01',t:mon+'-'+pad(dim(mon)),amt:0});sBZ();RENDER.bz()}
+function setBzD(id,k,v){const e=BZ.find(x=>x.id==id),o=Object.assign({},e,{[k]:v});if(!v||o.f>o.t){alert(L('তারিখ ঠিক নেই','Invalid dates'))}else e[k]=v;sBZ();RENDER.bz()}
+function setBzA(id,v){BZ.find(x=>x.id==id).amt=PN(v);sBZ();rBzRes()}
+function delBz(id){if(confirm(L('মুছবেন?','Delete?'))){BZ=BZ.filter(x=>x.id!=id);sBZ();RENDER.bz()}}
+function drawBz(){
+  const t=T0[TH],c=bzCalc(),W=800,H=140+c.rows.length*130+160,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  x.fillStyle=t.bg;x.fillRect(0,0,W,H);x.fillStyle=t.tx;x.textAlign='left';x.font='bold 40px '+FF;x.fillText(L('তারিখ অনুযায়ী বাজার','Bazar by Date'),40,70);
+  x.globalAlpha=.75;x.font='22px '+FF;x.fillText(L('মিল গণনা অনুযায়ী মিল ও মিল রেট','Meals and meal rate from Meal Count'),40,108);x.globalAlpha=1;
+  c.rows.forEach((r,i)=>{const y=140+i*130;x.fillStyle=t.row;rr(x,40,y,720,112,16);x.font='bold 28px '+FF;let s=r.n;while(x.measureText(s).width>340&&s.length>1)s=s.slice(0,-1);
+    x.fillStyle='#0b6b5c';rr(x,60,y+14,x.measureText(s).width+40,46,23);x.fillStyle='#fff';x.fillText(s,80,y+47);x.fillStyle=t.tx;x.globalAlpha=.75;x.font='20px '+FF;x.fillText(sd(r.f)+' – '+sd(r.t),60,y+90);x.globalAlpha=1;
+    x.textAlign='right';x.font='bold 30px '+FF;x.fillText(g(r.amt)+' ৳',740,y+44);x.font='20px '+FF;x.fillText(L('মিল ','Meals ')+f(r.ms)+'  |  '+L('রেট ','Rate ')+g(r.rate)+' ৳',740,y+88);x.textAlign='left'});
+  const y=140+c.rows.length*130;x.fillStyle=t.tile;rr(x,40,y,720,120,16);x.fillStyle=t.tx;
+  [[L('মোট বাজার','Total bazar'),g(c.tb)+' ৳'],[L('মোট মিল','Total meals'),f(c.tms)],[L('মিল রেট','Meal rate'),g(c.rate)+' ৳']].forEach((q,i)=>{x.globalAlpha=.75;x.font='18px '+FF;x.fillText(q[0],60+i*235,y+42);x.globalAlpha=1;x.font='bold 30px '+FF;x.fillText(q[1],60+i*235,y+88)});
+  return cv;
+}
 
 $('#mon').onchange=e=>{mon=e.target.value||mon;bf='';load();RENDER[pg]()};
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
