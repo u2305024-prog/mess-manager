@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>মেস ম্যানেজার</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0b6b5c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="মেস ম্যানেজার">
 <style>
 :root{--bg:#f3f5f2;--c:#fff;--t:#1c2a25;--p:#0b6b5c;--pt:#fff;--m:#66756f;--b:#d9e1dd;--neg:#b42318}
 @media(prefers-color-scheme:dark){:root{--bg:#0e1614;--c:#17231f;--t:#e5eeea;--p:#34d1b6;--pt:#06231d;--m:#8fa19a;--b:#2a3b36;--neg:#ff8a7a}}
@@ -53,6 +60,10 @@ button.x{flex:0 0 auto;white-space:nowrap;min-width:36px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .chip{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;border:2px solid var(--b);background:var(--c);color:var(--t)}
 .chip.on{border-color:var(--p);font-weight:700}.chip i{width:14px;height:14px;border-radius:50%;border:1px solid #8886}
+.walker{max-width:230px;margin:14px auto 0}.walker svg{width:100%;height:auto;display:block}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.bob{animation:bob 1.1s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.bob{animation:none}}
 </style>
 </head>
 <body>
@@ -62,6 +73,42 @@ button.x{flex:0 0 auto;white-space:nowrap;min-width:36px}
   <button class="home" onclick="go('in')"><h2>মেসের হিসাব</h2><p>সবার মিল, বাজার ও ইউটিলিটি মিলিয়ে কে কত দিবে/ফেরত পাবে।</p></button>
   <button class="home" onclick="go('ind')"><h2>ব্যক্তিগত হিসাব</h2><p>নিজের বাজারের তালিকা, মাসের মোট খরচ ও আর্কাইভ।</p></button>
   <button class="home" onclick="go('bk')"><h2>ব্যাকআপ / রিস্টোর</h2><p id="bkn"></p></button>
+  <div class="walker"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 340" role="img" aria-label="সবজির ব্যাগ হাতে লুঙ্গি ও টি-শার্ট পরা একজন হেঁটে যাচ্ছেন">
+<defs><pattern id="chk" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#2f6fd6"/><rect width="8" height="8" fill="#1f56b3"/><rect x="8" y="8" width="8" height="8" fill="#1f56b3"/><path d="M0 8H16M8 0V16" stroke="#cfe0ff" stroke-width="1.2" opacity=".9"/></pattern></defs>
+<ellipse cx="150" cy="326" rx="84" ry="9" fill="#000" opacity=".12"/>
+<g class="bob">
+<g stroke="#c48c60" stroke-width="17" stroke-linecap="round"><line x1="128" y1="258" x2="119" y2="312"/><line x1="172" y1="258" x2="185" y2="310"/></g>
+<ellipse cx="114" cy="319" rx="18" ry="7" fill="#6b4226"/><ellipse cx="192" cy="317" rx="18" ry="7" fill="#6b4226"/>
+<path d="M112,176 L188,176 L198,266 L102,266 Z" fill="url(#chk)"/>
+<path d="M128,190 L124,262 M150,190 L150,264 M172,190 L176,262" stroke="#000" stroke-opacity=".18" stroke-width="2" fill="none"/>
+<rect x="102" y="258" width="96" height="8" fill="#163f85"/>
+<rect x="110" y="170" width="80" height="16" rx="8" fill="#1a4aa0"/><circle cx="150" cy="178" r="6" fill="#12377a"/>
+<g stroke="#c48c60" stroke-width="15" stroke-linecap="round"><line x1="98" y1="146" x2="87" y2="206"/><line x1="202" y1="146" x2="214" y2="204"/></g>
+<circle cx="86" cy="212" r="9" fill="#c48c60"/>
+<path d="M110,112 C124,100 176,100 190,112 L212,142 L190,158 L186,182 L114,182 L110,158 L88,142 Z" fill="#f08a3c"/>
+<path d="M132,104 Q150,124 168,104" stroke="#c96a22" stroke-width="5" fill="none" stroke-linecap="round"/>
+<rect x="140" y="88" width="20" height="20" rx="6" fill="#b57d52"/>
+<path d="M132,104 Q150,126 168,104 L160,98 L140,98 Z" fill="#b57d52"/>
+<path d="M132,104 Q150,124 168,104" stroke="#c96a22" stroke-width="5" fill="none" stroke-linecap="round"/>
+<circle cx="118" cy="68" r="7" fill="#cf9468"/><circle cx="182" cy="68" r="7" fill="#cf9468"/>
+<circle cx="150" cy="64" r="32" fill="#cf9468"/>
+<path d="M118,60 C114,24 186,24 182,60 C176,44 160,40 150,40 C138,40 124,44 118,60 Z" fill="#1a1410"/>
+<path d="M130,56 Q138,51 146,55 M154,55 Q162,51 170,56" stroke="#1a1410" stroke-width="3" stroke-linecap="round" fill="none"/>
+<circle cx="138" cy="66" r="3.4" fill="#1a1410"/><circle cx="162" cy="66" r="3.4" fill="#1a1410"/>
+<path d="M150,68 Q154,76 148,78" stroke="#a8734b" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M133,82 Q150,72 167,82 Q158,89 150,85 Q142,89 133,82 Z" fill="#1a1410"/>
+<path d="M142,93 Q150,98 158,93" stroke="#6b2e1f" stroke-width="3" fill="none" stroke-linecap="round"/>
+<g>
+<ellipse cx="204" cy="220" rx="9" ry="15" fill="#3aa655" transform="rotate(-30 204 220)"/><ellipse cx="216" cy="214" rx="8" ry="17" fill="#2f8f46"/><ellipse cx="230" cy="220" rx="9" ry="15" fill="#43b25f" transform="rotate(30 230 220)"/>
+<ellipse cx="208" cy="268" rx="9" ry="22" fill="#6a3d9a" transform="rotate(-18 208 268)"/><ellipse cx="214" cy="247" rx="6" ry="4" fill="#3a9a4c" transform="rotate(-18 214 247)"/>
+<polygon points="224,242 238,248 228,284" fill="#f2862a"/><circle cx="226" cy="282" r="11" fill="#e0382f"/><path d="M222,272 L230,272" stroke="#2f9e44" stroke-width="3" stroke-linecap="round"/>
+<path d="M204,292 Q212,302 223,297" stroke="#2f9e44" stroke-width="5" fill="none" stroke-linecap="round"/>
+<path d="M196,236 Q196,224 214,222 Q238,224 242,238 Q252,272 232,298 Q214,306 198,296 Q184,270 196,236 Z" fill="#fff" fill-opacity=".38" stroke="#aab2b8" stroke-width="2"/>
+<path d="M200,228 Q206,212 214,208 M232,228 Q224,212 214,208" stroke="#8a9199" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<circle cx="214" cy="208" r="9" fill="#c48c60"/>
+</g>
+</g>
+</svg></div>
 </div>
 <div id="pind" style="display:none"></div>
 <div id="piarc" style="display:none"></div>
@@ -278,6 +325,7 @@ async function renderBk(){
   <div class="row"><button class="alt" onclick="go('home')">← ফিরে যান</button></div>`;
 }
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+try{if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js')}catch(e){}
 load();render();go('home');
 </script>
 </body>
